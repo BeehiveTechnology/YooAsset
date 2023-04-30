@@ -10,36 +10,72 @@ namespace YooAsset
 	{
 		private static string _buildinPath;
 		private static string _sandboxPath;
+        private static string _customBuildinPath;
+        private static string _customSandboxPath;
 
-		/// <summary>
-		/// 获取基于流文件夹的加载路径
-		/// </summary>
-		public static string MakeStreamingLoadPath(string path)
-		{
-			if (string.IsNullOrEmpty(_buildinPath))
-			{
-				_buildinPath = StringUtility.Format("{0}/{1}", UnityEngine.Application.streamingAssetsPath, YooAssetSettings.StreamingAssetsBuildinFolder);
-			}
-			return StringUtility.Format("{0}/{1}", _buildinPath, path);
-		}
+        public static bool MakeCustomPath(string buildinFolder)
+        {
+            // _customBuildinPath
+            _customBuildinPath = StringUtility.Format("{0}/{1}", UnityEngine.Application.streamingAssetsPath, buildinFolder);
 
-		/// <summary>
-		/// 获取基于沙盒文件夹的加载路径
-		/// </summary>
-		public static string MakePersistentLoadPath(string path)
-		{
-			string root = GetPersistentRootPath();
-			return StringUtility.Format("{0}/{1}", root, path);
-		}
-
-		/// <summary>
-		/// 获取沙盒文件夹路径
-		/// </summary>
-		public static string GetPersistentRootPath()
-		{
+            // _customSandboxPath
 #if UNITY_EDITOR
-			// 注意：为了方便调试查看，编辑器下把存储目录放到项目里
-			if (string.IsNullOrEmpty(_sandboxPath))
+            // 注意：为了方便调试查看，编辑器下把存储目录放到项目里
+            string directory = Path.GetDirectoryName(UnityEngine.Application.dataPath);
+            string projectPath = GetRegularPath(directory);
+            _customSandboxPath = StringUtility.Format("{0}/BeeHive/Sandbox/{1}", projectPath, buildinFolder);
+#else
+			_customSandboxPath = StringUtility.Format("{0}/BeeHive/Sandbox/{1}", UnityEngine.Application.persistentDataPath, buildinFolder);
+#endif
+            return true;
+        }
+
+        public static bool MakeCleanCustomPath()
+        {
+            _customBuildinPath = null;
+            _customSandboxPath = null;
+
+            return true;
+        }
+
+        /// <summary>
+        /// 获取基于流文件夹的加载路径
+        /// </summary>
+        public static string MakeStreamingLoadPath(string path)
+        {
+            if (!string.IsNullOrEmpty(_customBuildinPath))
+            {
+                return _customBuildinPath;
+            }
+
+            if (string.IsNullOrEmpty(_buildinPath))
+            {
+                _buildinPath = StringUtility.Format("{0}/{1}", UnityEngine.Application.streamingAssetsPath, YooAssetSettings.StreamingAssetsBuildinFolder);
+            }
+            return StringUtility.Format("{0}/{1}", _buildinPath, path);
+        }
+
+        /// <summary>
+        /// 获取基于沙盒文件夹的加载路径
+        /// </summary>
+        public static string MakePersistentLoadPath(string path)
+        {
+            string root = GetPersistentRootPath();
+            return StringUtility.Format("{0}/{1}", root, path);
+        }
+
+        /// <summary>
+        /// 获取沙盒文件夹路径
+        /// </summary>
+        public static string GetPersistentRootPath()
+        {
+            if (!string.IsNullOrEmpty(_customSandboxPath))
+            {
+                return _customSandboxPath;
+            }
+#if UNITY_EDITOR
+            // 注意：为了方便调试查看，编辑器下把存储目录放到项目里
+            if (string.IsNullOrEmpty(_sandboxPath))
 			{
 				string directory = Path.GetDirectoryName(UnityEngine.Application.dataPath);
 				string projectPath = GetRegularPath(directory);

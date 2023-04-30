@@ -105,11 +105,27 @@ namespace YooAsset
 			return package;
 		}
 
-		/// <summary>
-		/// 获取资源包
-		/// </summary>
-		/// <param name="packageName">资源包名称</param>
-		public static ResourcePackage GetPackage(string packageName)
+        /// <summary>
+        /// 删除资源包
+        /// </summary>
+        /// <param name="package"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static bool RemovePackage(ResourcePackage package)
+        {
+            if (_isInitialize == false)
+                throw new Exception($"{nameof(YooAssets)} not initialize !");
+
+            _packages.Remove(package);
+
+            return true;
+        }
+
+        /// <summary>
+        /// 获取资源包
+        /// </summary>
+        /// <param name="packageName">资源包名称</param>
+        public static ResourcePackage GetPackage(string packageName)
 		{
 			var package = TryGetPackage(packageName);
 			if (package == null)
